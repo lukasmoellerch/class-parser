@@ -1,6 +1,6 @@
 # class-parse
 
-Demo: Coming soon!
+Demo: [class-parser.lukas-moeller.ch!](http://class-parser.lukas-moeller.ch)
 
 This project implements a rudimentary .class file parser,  mostly following the Java SE9 spec. It only supports a few select attribute types, but can disassemble most instructions, with the major exception of the pseudo "wide" opcode. Its mostly an experiment that tries to provide a better visualization than existing tools without requiring a dedicated installation.
 
