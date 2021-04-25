@@ -40,27 +40,26 @@ const IndexPage: NextPage = () => {
 
   const parsed = useMemo(() => (data ? parseClass(data) : undefined), [data]);
   return (
-    <div className="bg-black py-10">
-      <div className="px-1 md:px-10 mx-auto container min-h-screen">
-        {file === undefined && (
-          <div
-            className="min-h-screen min-w-screen flex items-center justify-center"
-            {...getRootProps()}
-          >
-            <div className="font-mono p-9 text-green-400 max-w-xl border-4 border-green-300 border-dashed rounded-lg">
-              <h1 className="text-center mb-12 font-extrabold">class-parser</h1>
-              <input {...getInputProps()} />
+    <div className="bg-black">
+      {file === undefined && (
+        <div
+          className="min-h-screen min-w-screen flex items-center justify-center"
+          {...getRootProps()}
+        >
+          <div className="font-mono p-9 text-green-400 max-w-xl border-4 border-green-300 border-dashed rounded-lg">
+            <h1 className="text-center mb-12 font-extrabold">class-parser</h1>
+            <input {...getInputProps()} />
 
-              {isDragActive ? (
-                <p>Drop the file here ...</p>
-              ) : (
-                <p>Drag 'n' drop a class file here, or click to select one</p>
-              )}
-            </div>
+            {isDragActive ? (
+              <p>Drop the file here ...</p>
+            ) : (
+              <p>Drag 'n' drop a class file here, or click to select one</p>
+            )}
           </div>
-        )}
-
-        {parsed && (
+        </div>
+      )}
+      {parsed && (
+        <div className="px-1 md:px-10 mx-auto container min-h-screen py-5">
           <div className="font-mono text-white pt-10">
             <button
               onClick={() => setFile(undefined)}
@@ -112,8 +111,8 @@ const IndexPage: NextPage = () => {
               />
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
