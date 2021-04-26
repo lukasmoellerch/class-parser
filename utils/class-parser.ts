@@ -1,4 +1,9 @@
-import { CodeAttribute, decodeAttribute } from "./attribute";
+import {
+  CodeAttribute,
+  decodeAttribute,
+  LocalVariableInfo,
+  LocalVariableTableAttribute,
+} from "./attribute";
 import { Constant, decodeClass } from "./class-decoder";
 import { createDecoder } from "./decoder";
 import { disassembler, Instruction } from "./disassembler";
@@ -93,10 +98,26 @@ export const parseClass = (data: ArrayBuffer) => {
       (x) => x.type === "code"
     ) as CodeAttribute;
     let instructions: Instruction[] = [];
+    let localVariableData: Record<number, LocalVariableInfo> = {};
     if (codeAttribute !== undefined) {
       instructions = disassembler(createDecoder(codeAttribute.code), constants);
+      const localVariableTableAttribute = codeAttribute.attributes.find(
+        (x) => x.type === "localVariableTable"
+      ) as LocalVariableTableAttribute;
+      if (localVariableTableAttribute !== undefined) {
+        for (let variable of localVariableTableAttribute.localVariableTable) {
+          localVariableData[variable.index] = variable;
+        }
+      }
     }
-    return { accessFlags, name, descriptor, attributes, instructions };
+    return {
+      accessFlags,
+      name,
+      descriptor,
+      attributes,
+      instructions,
+      localVariableData,
+    };
   });
 
   const attributes = decoded.attributes.map((attribute) =>

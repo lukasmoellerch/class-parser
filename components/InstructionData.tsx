@@ -6,25 +6,30 @@ import {
   getFieldReference,
   getMethodReference,
   getString,
+  Method,
 } from "../utils/class-parser";
 import { Instruction, InstructionDataField } from "../utils/disassembler";
 import ClassPath from "./ClassPath";
 import FieldTypeComponent from "./FieldType";
+import Identifier from "./Identifier";
 import MethodTypeComponent from "./MethodType";
 
 interface FieldProps {
   field: InstructionDataField;
   constants: Constant[];
+  method: Method;
   instruction: Instruction;
   fieldName: string;
 }
 const FieldComponent: React.FC<FieldProps> = ({
   field,
   constants,
+  method,
   instruction,
   fieldName,
 }) => {
   let content: React.ReactChild = null;
+  const locals = method.localVariableData;
   if (typeof field.type !== "string") {
     content = <>{JSON.stringify(field)}</>;
   } else if (field.type === "offset") {
@@ -37,7 +42,12 @@ const FieldComponent: React.FC<FieldProps> = ({
       </>
     );
   } else if (field.type === "localIndex") {
-    content = <span className="text-red-500 font-bold">%{field.value}</span>;
+    const localDebugData = locals[field.value];
+    if (localDebugData !== undefined) {
+      content = <Identifier>{localDebugData.name}</Identifier>;
+    } else {
+      content = <span className="text-red-500 font-bold">%{field.value}</span>;
+    }
   } else if (field.type === "typeIndex") {
     const t = getClassReference(constants, field.value);
     content = <ClassPath path={t} />;
@@ -49,7 +59,7 @@ const FieldComponent: React.FC<FieldProps> = ({
       <>
         <FieldTypeComponent type={t.nameType.type} />{" "}
         <ClassPath path={t.classRef} />.
-        <span className="text-yellow-200 font-semibold">{t.nameType.name}</span>
+        <Identifier>{t.nameType.name}</Identifier>
       </>
     );
   } else if (field.type === "methodReference") {
@@ -62,9 +72,7 @@ const FieldComponent: React.FC<FieldProps> = ({
             <>
               <ClassPath path={t.classRef} />
               {"."}
-              <span className="text-yellow-200 font-semibold">
-                {t.nameType.name}
-              </span>
+              <Identifier>{t.nameType.name}</Identifier>
             </>
           }
         />{" "}
@@ -93,7 +101,7 @@ const FieldComponent: React.FC<FieldProps> = ({
   return (
     <>
       {!field.labelHidden && (
-        <span className="text-yellow-500 text-opacity-50 hover:text-opacity-100">
+        <span className="text-yellow-500 text-opacity-100 hover:text-opacity-100">
           {fieldName}:{" "}
         </span>
       )}
@@ -105,12 +113,14 @@ const FieldComponent: React.FC<FieldProps> = ({
 interface Props {
   data: Instruction["data"] & {};
   constants: Constant[];
+  method: Method;
   instruction: Instruction;
 }
 
 const InstructionDataComponent: React.FC<Props> = ({
   data,
   constants,
+  method,
   instruction,
 }) => {
   let elements: React.ReactChild[] = [];
@@ -129,6 +139,7 @@ const InstructionDataComponent: React.FC<Props> = ({
         constants={constants}
         fieldName={key}
         field={value}
+        method={method}
         key={`p${i}`}
       />
     );

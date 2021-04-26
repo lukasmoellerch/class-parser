@@ -1,6 +1,8 @@
 import { AttributeInfo, Constant, decodeAttributeInfo } from "./class-decoder";
 import { getConstant, getString } from "./class-parser";
 import { createDecoder, Decoder } from "./decoder";
+import { FieldType, parseFieldDescriptor } from "./field-descriptor-parser";
+import { createStringParser } from "./string-parser";
 
 export interface ConstantValueAttribute {
   type: "constantValue";
@@ -80,6 +82,40 @@ const decodeCodeAttribute = (
   };
 };
 
+export interface LocalVariableInfo {
+  startPC: number;
+  length: number;
+  name: string;
+  type: FieldType;
+  index: number;
+}
+
+export interface LocalVariableTableAttribute {
+  type: "localVariableTable";
+  localVariableTable: LocalVariableInfo[];
+}
+
+const decodeLocalVariableInfoAttribute = (
+  decoder: Decoder,
+  constantPool: Constant[]
+): LocalVariableTableAttribute => {
+  const localVariableTableLength = decoder.getU2();
+  const localVariableTable: LocalVariableInfo[] = [];
+  for (let i = 0; i < localVariableTableLength; i++) {
+    const startPC = decoder.getU2();
+    const length = decoder.getU2();
+    const nameIndex = decoder.getU2();
+    const name = getString(constantPool, nameIndex);
+    const descriptorIndex = decoder.getU2();
+    const type = parseFieldDescriptor(
+      createStringParser(getString(constantPool, descriptorIndex))
+    );
+    const index = decoder.getU2();
+    localVariableTable.push({ startPC, length, name, type, index });
+  }
+  return { type: "localVariableTable", localVariableTable };
+};
+
 type StackMapFrame = "";
 export interface StackMapTableAttribute {
   entries: StackMapFrame[];
@@ -101,11 +137,14 @@ export const decodeAttribute = (
       return decodeConstantValueAttribute(decoder, constantPool);
     case "Code":
       return decodeCodeAttribute(decoder, constantPool);
+    case "LocalVariableTable":
+      return decodeLocalVariableInfoAttribute(decoder, constantPool);
     default:
       return { type: "Unknown", name, data: info.info };
   }
 };
 export type Attribute =
   | ConstantValueAttribute
+  | LocalVariableTableAttribute
   | UnknownAttribute
   | CodeAttribute;

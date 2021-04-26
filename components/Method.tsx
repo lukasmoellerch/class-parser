@@ -18,15 +18,36 @@ const getAccessName = (flags: MethodAccessFlags) => {
 };
 
 const MethodComponent: React.FC<Props> = ({ method, constants }) => {
+  const { localVariableData } = method;
+  let argNames: string[] | undefined = [];
+  let offset = method.accessFlags.isStatic ? 0 : 1;
+  for (
+    let i = 0;
+    argNames !== undefined && i < method.descriptor.parameterTypes.length;
+    i++
+  ) {
+    const j = offset + i;
+    if (localVariableData[j] !== undefined) {
+      argNames[i] = localVariableData[j].name;
+    } else {
+      argNames = undefined;
+    }
+  }
   return (
     <div className="mt-5">
       <div className="flex space-x-2">
         <span className="px-1.5 py-0.5 bg-green-500 bg-opacity-30 rounded">
           {getAccessName(method.accessFlags)}
         </span>
+        {method.accessFlags.isStatic && (
+          <span className="px-1.5 py-0.5 bg-blue-500 bg-opacity-30 rounded">
+            static
+          </span>
+        )}
         <span className="px-1.5 py-0.5 bg-red-500 bg-opacity-30 rounded">
           <MethodTypeComponent
             type={method.descriptor}
+            argNames={argNames}
             name={
               <span className="text-yellow-200 font-semibold">
                 {method.name}
@@ -42,7 +63,7 @@ const MethodComponent: React.FC<Props> = ({ method, constants }) => {
               {" "}
               {instruction.offset.toString().padStart(5)}:
             </div>
-            <div className="text-blue-100 text-opacity-40 hover:text-opacity-100">
+            <div className="text-blue-100 text-opacity-40 hover:text-opacity-100 tracking-tighter">
               0x
               {instruction.opcode.toString(16).padStart(2, "0")}
             </div>
@@ -54,6 +75,7 @@ const MethodComponent: React.FC<Props> = ({ method, constants }) => {
                 <InstructionDataComponent
                   constants={constants}
                   data={instruction.data}
+                  method={method}
                   instruction={instruction}
                 />
               </div>
