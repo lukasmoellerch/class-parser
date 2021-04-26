@@ -25,7 +25,14 @@ const MethodComponent: React.FC<Props> = ({ method, constants }) => {
           {getAccessName(method.accessFlags)}
         </span>
         <span className="px-1.5 py-0.5 bg-red-500 bg-opacity-30 rounded">
-          <MethodTypeComponent type={method.descriptor} name={method.name} />
+          <MethodTypeComponent
+            type={method.descriptor}
+            name={
+              <span className="text-yellow-200 font-semibold">
+                {method.name}
+              </span>
+            }
+          />
         </span>
       </div>
       <div className="mt-2">

@@ -5,6 +5,7 @@ import {
   getConstant,
   getFieldReference,
   getMethodReference,
+  getString,
 } from "../utils/class-parser";
 import { Instruction, InstructionDataField } from "../utils/disassembler";
 import ClassPath from "./ClassPath";
@@ -15,17 +16,19 @@ interface FieldProps {
   field: InstructionDataField;
   constants: Constant[];
   instruction: Instruction;
+  fieldName: string;
 }
 const FieldComponent: React.FC<FieldProps> = ({
   field,
   constants,
   instruction,
+  fieldName,
 }) => {
+  let content: React.ReactChild = null;
   if (typeof field.type !== "string") {
-    return <>{JSON.stringify(field)}</>;
-  }
-  if (field.type === "offset") {
-    return (
+    content = <>{JSON.stringify(field)}</>;
+  } else if (field.type === "offset") {
+    content = (
       <>
         {instruction.offset + field.value}{" "}
         <span className="opacity-70">
@@ -33,52 +36,70 @@ const FieldComponent: React.FC<FieldProps> = ({
         </span>
       </>
     );
-  }
-  if (field.type === "localIndex") {
-    return <span className="text-red-500 font-bold">%{field.value}</span>;
-  }
-  if (field.type === "typeIndex") {
+  } else if (field.type === "localIndex") {
+    content = <span className="text-red-500 font-bold">%{field.value}</span>;
+  } else if (field.type === "typeIndex") {
     const t = getClassReference(constants, field.value);
-    return <ClassPath path={t} />;
-  }
-  if (field.type === "intLiteral") {
-    return <>{field.value}</>;
-  }
-  if (field.type === "fieldReference") {
+    content = <ClassPath path={t} />;
+  } else if (field.type === "intLiteral") {
+    content = <>{field.value}</>;
+  } else if (field.type === "fieldReference") {
     const t = getFieldReference(constants, field.value);
-    return (
+    content = (
       <>
-        <FieldTypeComponent type={t.nameType.type} /> {t.classRef.join(".")}.
-        {t.nameType.name}
+        <FieldTypeComponent type={t.nameType.type} />{" "}
+        <ClassPath path={t.classRef} />.
+        <span className="text-yellow-200 font-semibold">{t.nameType.name}</span>
       </>
     );
-  }
-  if (field.type === "methodReference") {
+  } else if (field.type === "methodReference") {
     const t = getMethodReference(constants, field.value);
-    const href = t.classRef[0] === "java" ? `` : undefined;
-    return (
+    content = (
       <>
-        <MethodTypeComponent type={t.nameType.type} name={t.nameType.name} />{" "}
-        <ClassPath path={t.classRef} />
+        <MethodTypeComponent
+          type={t.nameType.type}
+          name={
+            <>
+              <ClassPath path={t.classRef} />
+              {"."}
+              <span className="text-yellow-200 font-semibold">
+                {t.nameType.name}
+              </span>
+            </>
+          }
+        />{" "}
       </>
     );
-  }
-  if (field.type === "constantReference") {
+  } else if (field.type === "constantReference") {
     try {
       const t = getConstant(constants, field.value);
-      if (
+      if (t.type === "stringReference") {
+        const s = getString(constants, t.index);
+        content = <span className="text-green-400">{JSON.stringify(s)}</span>;
+      } else if (
         t.type !== "integer" &&
         t.type !== "long" &&
         t.type !== "float" &&
         t.type !== "double"
       )
-        return null;
-      return <>{t.value}</>;
+        content = null;
+      else {
+        content = <span className="text-yellow-500">{t.value}</span>;
+      }
     } catch (e) {
-      return <>{field.value}</>;
+      content = <>{field.value}</>;
     }
   }
-  return null;
+  return (
+    <>
+      {!field.labelHidden && (
+        <span className="text-yellow-500 text-opacity-50 hover:text-opacity-100">
+          {fieldName}:{" "}
+        </span>
+      )}
+      {content}
+    </>
+  );
 };
 
 interface Props {
@@ -103,17 +124,10 @@ const InstructionDataComponent: React.FC<Props> = ({
       elements.push(<span key={`,${i}`}>, </span>);
     }
     elements.push(
-      <span
-        key={`k${i}`}
-        className="text-yellow-500 text-opacity-50 hover:text-opacity-100"
-      >
-        {key}:{" "}
-      </span>
-    );
-    elements.push(
       <FieldComponent
         instruction={instruction}
         constants={constants}
+        fieldName={key}
         field={value}
         key={`p${i}`}
       />

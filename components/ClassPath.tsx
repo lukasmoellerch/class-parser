@@ -5,7 +5,8 @@ const ClassPath: React.FC<Props> = ({ path }) => {
   let elements: React.ReactChild[] = [];
   let first = true;
   let i = 0;
-  for (const component of path) {
+  const displayPath = path.slice(path.length - 1);
+  for (const component of displayPath) {
     if (first) {
       first = false;
     } else {
@@ -25,6 +26,7 @@ const ClassPath: React.FC<Props> = ({ path }) => {
   if (path[0] === "java") {
     return (
       <a
+        title={path.join(".")}
         href={`https://docs.oracle.com/javase/9/docs/api/${path.join(
           "/"
         )}.html`}
@@ -34,7 +36,7 @@ const ClassPath: React.FC<Props> = ({ path }) => {
       </a>
     );
   }
-  return <>{elements}</>;
+  return <span title={path.join(".")}>{elements}</span>;
 };
 
 export default ClassPath;

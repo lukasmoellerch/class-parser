@@ -24,33 +24,59 @@ const instruction = <Mem extends string, T = void>(
   >;
 };
 
-const createOffset = (offset: number) => ({
+const branchInstruction = <Mem extends string>(
+  opcode: number,
+  mnemonic: Mem
+) => {
+  return instruction(opcode, mnemonic, (decoder) => {
+    return { location: createOffset(decoder.getS2()) };
+  });
+};
+
+const loadStoreInstruction = <Mem extends string>(
+  opcode: number,
+  mnemonic: Mem,
+  index: number
+) => {
+  return instruction(opcode, mnemonic, () => {
+    return { local: createLocalIndex(index, false) };
+  });
+};
+
+const createOffset = (offset: number, labelHidden = true) => ({
   type: "offset" as const,
   value: offset,
+  labelHidden,
 });
-const createLocalIndex = (index: number) => ({
+const createLocalIndex = (index: number, labelHidden = true) => ({
   type: "localIndex" as const,
   value: index,
+  labelHidden,
 });
-const createTypeIndex = (index: number) => ({
+const createTypeIndex = (index: number, labelHidden = true) => ({
   type: "typeIndex" as const,
   value: index,
+  labelHidden,
 });
-const createIntLiteral = (index: number) => ({
+const createIntLiteral = (index: number, labelHidden = true) => ({
   type: "intLiteral" as const,
   value: index,
+  labelHidden,
 });
-const createFieldReference = (index: number) => ({
+const createFieldReference = (index: number, labelHidden = true) => ({
   type: "fieldReference" as const,
   value: index,
+  labelHidden,
 });
-const createMethodReference = (index: number) => ({
+const createMethodReference = (index: number, labelHidden = true) => ({
   type: "methodReference" as const,
   value: index,
+  labelHidden,
 });
-const createConstantReference = (index: number) => ({
+const createConstantReference = (index: number, labelHidden = true) => ({
   type: "constantReference" as const,
   value: index,
+  labelHidden,
 });
 
 export type InstructionDataField =
@@ -62,15 +88,6 @@ export type InstructionDataField =
   | ReturnType<typeof createMethodReference>
   | ReturnType<typeof createConstantReference>;
 
-const branchInstruction = <Mem extends string>(
-  opcode: number,
-  mnemonic: Mem
-) => {
-  return instruction(opcode, mnemonic, (decoder) => {
-    return { location: createOffset(decoder.getS2()) };
-  });
-};
-
 export const instructions = [
   instruction(0x32, "aaload"),
   instruction(0x53, "aastore"),
@@ -80,10 +97,10 @@ export const instructions = [
       local: createLocalIndex(decoder.getU1()),
     };
   }),
-  instruction(0x2a, "aload_0"),
-  instruction(0x2b, "aload_1"),
-  instruction(0x2c, "aload_2"),
-  instruction(0x2d, "aload_3"),
+  loadStoreInstruction(0x2a, "aload_0", 0),
+  loadStoreInstruction(0x2b, "aload_1", 1),
+  loadStoreInstruction(0x2c, "aload_2", 2),
+  loadStoreInstruction(0x2d, "aload_3", 3),
   instruction(0xbd, "anewarray", (decoder) => {
     const b1 = decoder.getU1();
     const b2 = decoder.getU1();
@@ -94,13 +111,13 @@ export const instructions = [
   instruction(0xbe, "arraylength"),
   instruction(0x3a, "astore", (decoder) => {
     return {
-      local: createLocalIndex(decoder.getU1()),
+      local: createLocalIndex(decoder.getU1(), false),
     };
   }),
-  instruction(0x4b, "astore_0"),
-  instruction(0x4c, "astore_1"),
-  instruction(0x4d, "astore_2"),
-  instruction(0x4e, "astore_3"),
+  loadStoreInstruction(0x4b, "astore_0", 0),
+  loadStoreInstruction(0x4c, "astore_1", 1),
+  loadStoreInstruction(0x4d, "astore_2", 2),
+  loadStoreInstruction(0x4e, "astore_3", 3),
   instruction(0xbf, "athrow"),
   instruction(0x33, "baload"),
   instruction(0x54, "bastore"),
@@ -130,26 +147,26 @@ export const instructions = [
   instruction(0x6f, "ddiv"),
   instruction(0x18, "dload", (decoder) => {
     return {
-      local: createLocalIndex(decoder.getU1()),
+      local: createLocalIndex(decoder.getU1(), false),
     };
   }),
-  instruction(0x26, "dload_0"),
-  instruction(0x27, "dload_1"),
-  instruction(0x28, "dload_2"),
-  instruction(0x29, "dload_3"),
+  loadStoreInstruction(0x26, "dload_0", 0),
+  loadStoreInstruction(0x27, "dload_1", 1),
+  loadStoreInstruction(0x28, "dload_2", 2),
+  loadStoreInstruction(0x29, "dload_3", 3),
   instruction(0x6b, "dmul"),
   instruction(0x77, "dneg"),
   instruction(0x73, "drem"),
   instruction(0xaf, "dreturn"),
   instruction(0x39, "dstore", (decoder) => {
     return {
-      local: createLocalIndex(decoder.getU1()),
+      local: createLocalIndex(decoder.getU1(), false),
     };
   }),
-  instruction(0x47, "dstore_0"),
-  instruction(0x48, "dstore_1"),
-  instruction(0x49, "dstore_2"),
-  instruction(0x4a, "dstore_3"),
+  loadStoreInstruction(0x47, "dstore_0", 0),
+  loadStoreInstruction(0x48, "dstore_1", 1),
+  loadStoreInstruction(0x49, "dstore_2", 2),
+  loadStoreInstruction(0x4a, "dstore_3", 3),
   instruction(0x67, "dsub"),
   instruction(0x59, "dup"),
   instruction(0x5a, "dup_x1"),
@@ -170,21 +187,21 @@ export const instructions = [
   instruction(0x0d, "fconst_2"),
   instruction(0x6e, "fdiv"),
   instruction(0x17, "fload"),
-  instruction(0x22, "fload_0"),
-  instruction(0x23, "fload_1"),
-  instruction(0x24, "fload_2"),
-  instruction(0x25, "fload_3"),
+  loadStoreInstruction(0x22, "fload_0", 0),
+  loadStoreInstruction(0x23, "fload_1", 1),
+  loadStoreInstruction(0x24, "fload_2", 2),
+  loadStoreInstruction(0x25, "fload_3", 3),
   instruction(0x6a, "fmul"),
   instruction(0x76, "fneg"),
   instruction(0x72, "frem"),
   instruction(0xae, "freturn"),
   instruction(0x38, "fstore", (decoder) => {
-    return { local: createLocalIndex(decoder.getU1()) };
+    return { local: createLocalIndex(decoder.getU1(), false) };
   }),
-  instruction(0x43, "fstore_0"),
-  instruction(0x44, "fstore_1"),
-  instruction(0x45, "fstore_2"),
-  instruction(0x46, "fstore_3"),
+  loadStoreInstruction(0x43, "fstore_0", 0),
+  loadStoreInstruction(0x44, "fstore_1", 1),
+  loadStoreInstruction(0x45, "fstore_2", 2),
+  loadStoreInstruction(0x46, "fstore_3", 3),
   instruction(0x66, "fsub"),
   instruction(0xb4, "getfield", (decoder) => {
     const b1 = decoder.getU1();
@@ -196,7 +213,7 @@ export const instructions = [
     const b1 = decoder.getU1();
     const b2 = decoder.getU1();
     const index = (b1 << 8) | b2;
-    return { field: createFieldReference(index) };
+    return { field: createFieldReference(index, false) };
   }),
   instruction(0xa7, "goto", (decoder) => {
     return { location: createOffset(decoder.getS2()) };
@@ -246,24 +263,24 @@ export const instructions = [
     const index = decoder.getU1();
     const constant = decoder.getU1();
     return {
-      local: createLocalIndex(index),
+      local: createLocalIndex(index, false),
       value: createIntLiteral(constant),
     };
   }),
   instruction(0x15, "iload", (decoder) => {
-    return { local: createLocalIndex(decoder.getU1()) };
+    return { local: createLocalIndex(decoder.getU1(), false) };
   }),
-  instruction(0x1a, "iload_0"),
-  instruction(0x1b, "iload_1"),
-  instruction(0x1c, "iload_2"),
-  instruction(0x1d, "iload_3"),
+  loadStoreInstruction(0x1a, "iload_0", 0),
+  loadStoreInstruction(0x1b, "iload_1", 1),
+  loadStoreInstruction(0x1c, "iload_2", 2),
+  loadStoreInstruction(0x1d, "iload_3", 3),
   instruction(0x68, "imul"),
   instruction(0x74, "ineg"),
   instruction(0xc1, "instanceof", (decoder) => {
     const b1 = decoder.getU1();
     const b2 = decoder.getU1();
     const index = (b1 << 8) | b2;
-    return { type: createTypeIndex(index) };
+    return { type: createTypeIndex(index, false) };
   }),
   instruction(0xba, "invokedynamic", (decoder) => {
     const b1 = decoder.getU1();
@@ -271,7 +288,7 @@ export const instructions = [
     const index = (b1 << 8) | b2;
     if (decoder.getU1() !== 0) throw new Error();
     if (decoder.getU1() !== 0) throw new Error();
-    return { method: createMethodReference(index) };
+    return { method: createMethodReference(index, false) };
   }),
   instruction(0xb9, "invokeinterface", (decoder) => {
     const b1 = decoder.getU1();
@@ -280,27 +297,27 @@ export const instructions = [
     const count = decoder.getU1();
     if (decoder.getU1() !== 0) throw new Error();
     return {
-      method: createMethodReference(index),
-      count: createIntLiteral(count),
+      method: createMethodReference(index, false),
+      count: createIntLiteral(count, false),
     };
   }),
   instruction(0xb7, "invokespecial", (decoder) => {
     const b1 = decoder.getU1();
     const b2 = decoder.getU1();
     const index = (b1 << 8) | b2;
-    return { method: createMethodReference(index) };
+    return { method: createMethodReference(index, false) };
   }),
   instruction(0xb8, "invokestatic", (decoder) => {
     const b1 = decoder.getU1();
     const b2 = decoder.getU1();
     const index = (b1 << 8) | b2;
-    return { method: createMethodReference(index) };
+    return { method: createMethodReference(index, false) };
   }),
   instruction(0xb6, "invokevirtual", (decoder) => {
     const b1 = decoder.getU1();
     const b2 = decoder.getU1();
     const index = (b1 << 8) | b2;
-    return { method: createMethodReference(index) };
+    return { method: createMethodReference(index, false) };
   }),
   instruction(0x80, "ior"),
   instruction(0x70, "irem"),
@@ -308,12 +325,12 @@ export const instructions = [
   instruction(0x78, "ishl"),
   instruction(0x7a, "ishr"),
   instruction(0x36, "istore", (decoder) => {
-    return { local: createLocalIndex(decoder.getU1()) };
+    return { local: createLocalIndex(decoder.getU1(), false) };
   }),
-  instruction(0x3b, "istore_0"),
-  instruction(0x3c, "istore_1"),
-  instruction(0x3d, "istore_2"),
-  instruction(0x3e, "istore_3"),
+  loadStoreInstruction(0x3b, "istore_0", 0),
+  loadStoreInstruction(0x3c, "istore_1", 1),
+  loadStoreInstruction(0x3d, "istore_2", 2),
+  loadStoreInstruction(0x3e, "istore_3", 3),
   instruction(0x64, "isub"),
   instruction(0x7c, "iushr"),
   instruction(0x82, "ixor"),
@@ -350,12 +367,12 @@ export const instructions = [
   }),
   instruction(0x6d, "ldiv"),
   instruction(0x16, "lload", (decoder) => {
-    return { local: createLocalIndex(decoder.getU1()) };
+    return { local: createLocalIndex(decoder.getU1(), false) };
   }),
-  instruction(0x1e, "lload_0"),
-  instruction(0x1f, "lload_1"),
-  instruction(0x20, "lload_2"),
-  instruction(0x21, "lload_3"),
+  loadStoreInstruction(0x1e, "lload_0", 0),
+  loadStoreInstruction(0x1f, "lload_1", 1),
+  loadStoreInstruction(0x20, "lload_2", 2),
+  loadStoreInstruction(0x21, "lload_3", 3),
   instruction(0x69, "lmul"),
   instruction(0x75, "lneg"),
   instruction(0xab, "lookupswitch", (decoder) => {
@@ -376,12 +393,12 @@ export const instructions = [
   instruction(0x79, "lshl"),
   instruction(0x7b, "lshr"),
   instruction(0x37, "lstore", (decoder) => {
-    return { local: createLocalIndex(decoder.getU1()) };
+    return { local: createLocalIndex(decoder.getU1(), false) };
   }),
-  instruction(0x3f, "lstore_0"),
-  instruction(0x40, "lstore_1"),
-  instruction(0x41, "lstore_2"),
-  instruction(0x42, "lstore_3"),
+  loadStoreInstruction(0x3f, "lstore_0", 0),
+  loadStoreInstruction(0x40, "lstore_1", 1),
+  loadStoreInstruction(0x41, "lstore_2", 2),
+  loadStoreInstruction(0x42, "lstore_3", 3),
   instruction(0x65, "lsub"),
   instruction(0x7d, "lushr"),
   instruction(0x83, "lxor"),
@@ -420,10 +437,10 @@ export const instructions = [
     const b1 = decoder.getU1();
     const b2 = decoder.getU1();
     const index = (b1 << 8) | b2;
-    return { field: createFieldReference(index) };
+    return { field: createFieldReference(index, false) };
   }),
   instruction(0xa9, "ret", (decoder) => {
-    return { index: createLocalIndex(decoder.getU1()) };
+    return { local: createLocalIndex(decoder.getU1(), false) };
   }),
   instruction(0xb1, "return"),
   instruction(0x35, "saload"),

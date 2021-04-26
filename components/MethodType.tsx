@@ -3,33 +3,16 @@ import { MethodType } from "../utils/method-descriptor-parser";
 import FieldTypeComponent from "./FieldType";
 
 interface Props {
-  name?: string;
+  name?: React.ReactChild;
   type: MethodType;
-  href?: string;
 }
 
-const MethodTypeComponent: React.FC<Props> = ({ name, type, href }) => {
+const MethodTypeComponent: React.FC<Props> = ({ name, type }) => {
   let elements: React.ReactChild[] = [];
   elements.push(<FieldTypeComponent type={type.returnType} key="return" />);
   elements.push(<React.Fragment key="A"> </React.Fragment>);
   if (name) {
-    if (href) {
-      elements.push(
-        <a
-          href={href}
-          key="name"
-          className="underline text-yellow-200 font-semibold"
-        >
-          {name}
-        </a>
-      );
-    } else {
-      elements.push(
-        <span key="name" className="text-yellow-200 font-semibold">
-          {name}
-        </span>
-      );
-    }
+    elements.push(<React.Fragment key="name">{name}</React.Fragment>);
   }
   let first = true;
   let i = 0;
