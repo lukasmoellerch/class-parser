@@ -149,6 +149,7 @@ const InstructionDataComponent: React.FC<Props> = ({
         key={`p${i}`}
       />
     );
+    i++;
   }
 
   return <>{elements}</>;
