@@ -12,7 +12,7 @@ const ClassPath: React.FC<Props> = ({ path }) => {
     } else {
       elements.push(
         <span key={`.${i}`} className="text-opacity-75 text-green-200">
-          .
+          <wbr />.
         </span>
       );
     }

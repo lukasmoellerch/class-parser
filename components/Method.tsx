@@ -40,7 +40,7 @@ const MethodComponent: React.FC<Props> = ({ method, constants }) => {
           {getAccessName(method.accessFlags)}
         </span>
         {method.accessFlags.isStatic && (
-          <span className="px-1.5 py-0.5 bg-blue-500 bg-opacity-30 rounded">
+          <span className="px-1.5 py-0.5 bg-teal-500 bg-opacity-30 rounded">
             static
           </span>
         )}
@@ -59,12 +59,11 @@ const MethodComponent: React.FC<Props> = ({ method, constants }) => {
       <div className="mt-2">
         {method.instructions.map((instruction) => (
           <div key={instruction.offset} className="flex items-start space-x-2">
-            <div className="text-blue-300 whitespace-pre">
+            <div className="text-teal-300 whitespace-pre">
               {" "}
-              {instruction.offset.toString().padStart(5)}:
+              {instruction.offset.toString().padStart(4)}:
             </div>
-            <div className="text-blue-100 text-opacity-40 hover:text-opacity-100 tracking-tighter">
-              0x
+            <div className="text-teal-100 text-opacity-40 hover:text-opacity-100 tracking-tighter">
               {instruction.opcode.toString(16).padStart(2, "0")}
             </div>
             <div className="text-red-400 font-bold">

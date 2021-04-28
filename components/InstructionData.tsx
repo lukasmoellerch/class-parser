@@ -44,7 +44,14 @@ const FieldComponent: React.FC<FieldProps> = ({
   } else if (field.type === "localIndex") {
     const localDebugData = locals[field.value];
     if (localDebugData !== undefined) {
-      content = <Identifier>{localDebugData.name}</Identifier>;
+      content = (
+        <>
+          <Identifier>{localDebugData.name}</Identifier>
+          <sup className="text-yellow-300 text-opacity-80 p-0.5">
+            {field.value}
+          </sup>
+        </>
+      );
     } else {
       content = <span className="text-red-500 font-bold">%{field.value}</span>;
     }
@@ -58,8 +65,8 @@ const FieldComponent: React.FC<FieldProps> = ({
     content = (
       <>
         <FieldTypeComponent type={t.nameType.type} />{" "}
-        <ClassPath path={t.classRef} />.
-        <Identifier>{t.nameType.name}</Identifier>
+        <ClassPath path={t.classRef} />
+        <wbr />.<Identifier>{t.nameType.name}</Identifier>
       </>
     );
   } else if (field.type === "methodReference") {
@@ -71,8 +78,7 @@ const FieldComponent: React.FC<FieldProps> = ({
           name={
             <>
               <ClassPath path={t.classRef} />
-              {"."}
-              <Identifier>{t.nameType.name}</Identifier>
+              <wbr />.<Identifier>{t.nameType.name}</Identifier>
             </>
           }
         />{" "}

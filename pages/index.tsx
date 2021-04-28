@@ -46,7 +46,7 @@ const IndexPage: NextPage = () => {
           className="min-h-screen min-w-screen flex items-center justify-center"
           {...getRootProps()}
         >
-          <div className="font-mono p-9 text-green-400 max-w-xl border-4 border-green-300 border-dashed rounded-lg">
+          <div className="font-mono text-lg p-9 text-green-400 max-w-xl border-4 border-green-300 border-dashed rounded-lg">
             <h1 className="text-center mb-12 font-extrabold">class-parser</h1>
             <input {...getInputProps()} />
 
@@ -59,34 +59,47 @@ const IndexPage: NextPage = () => {
         </div>
       )}
       {parsed && (
-        <div className="px-1 md:px-10 mx-auto container min-h-screen py-5">
+        <div className="px-3 md:px-10 mx-auto md:container min-h-screen py-5">
           <div className="font-mono text-white pt-10">
             <button
               onClick={() => setFile(undefined)}
-              className="fixed top-2 right-0 p-2 text-2xl border-2 border-white border-opacity-60"
+              className="fixed top-10 right-10 p-2 rounded-full text-2xl border-4 border-white border-opacity-60 text-white"
             >
-              X
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={4}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
             </button>
 
-            <div className="flex space-x-2 font-bold text-lg mb-20">
-              <span className="px-1.5 py-0.5 bg-green-500 bg-opacity-30 rounded">
+            <div className="flex space-x-2 font-bold text-lg mb-20 flex-wrap">
+              <span className="px-1.5 py-0.5 my-1 bg-green-500 bg-opacity-30 rounded">
                 {getAccessName(parsed.accessFlags)}
               </span>
-              <span className="px-1.5 py-0.5">class</span>
-              <span className="px-1.5 py-0.5 bg-red-500 bg-opacity-30 rounded">
+              <span className="px-1.5 py-0.5 my-1">class</span>
+              <span className="px-1.5 py-0.5 my-1 bg-red-600 bg-opacity-60 rounded">
                 <ClassPath path={parsed.thisClass} />
               </span>
-              <span className="px-1.5 py-0.5">extends</span>
-              <span className="px-1.5 py-0.5 bg-red-500 bg-opacity-30 rounded">
+              <span className="px-1.5 py-0.5 my-1">extends</span>
+              <span className="px-1.5 py-0.5 my-1 bg-red-600 bg-opacity-60 rounded">
                 <ClassPath path={parsed.superClass} />
               </span>
               {parsed.interfaces.length > 0 && (
                 <>
-                  <span className="px-1.5 py-0.5">implements</span>
+                  <span className="px-1.5 py-0.5 my-1">implements</span>
                   {parsed.interfaces.map((interfacePath, index) => (
                     <span
                       key={index}
-                      className="px-1.5 py-0.5 bg-red-500 bg-opacity-30 rounded"
+                      className="px-1.5 py-0.5 my-1 bg-red-500 bg-opacity-30 rounded"
                     >
                       <ClassPath path={interfacePath} />
                     </span>

@@ -94,7 +94,7 @@ export const instructions = [
   instruction(0x01, "aconst_null"),
   instruction(0x19, "aload", (decoder) => {
     return {
-      local: createLocalIndex(decoder.getU1()),
+      local: createLocalIndex(decoder.getU1(), false),
     };
   }),
   loadStoreInstruction(0x2a, "aload_0", 0),

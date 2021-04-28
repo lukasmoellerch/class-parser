@@ -108,6 +108,27 @@ export const parseClass = (data: ArrayBuffer) => {
         for (let variable of localVariableTableAttribute.localVariableTable) {
           localVariableData[variable.index] = variable;
         }
+      } else {
+        let index = 0;
+        if (!method.accessFlags.isStatic) {
+          localVariableData[index++] = {
+            index: 0,
+            startPC: 0,
+            length: codeAttribute.code.byteLength,
+            name: "this",
+            type: { type: "reference", className: thisClass },
+          };
+        }
+        let parameterIndex = 0;
+        for (let parameter of descriptor.parameterTypes) {
+          localVariableData[index++] = {
+            index,
+            startPC: 0,
+            length: codeAttribute.code.byteLength,
+            name: `arg${parameterIndex++}`,
+            type: parameter,
+          };
+        }
       }
     }
     return {
