@@ -103,7 +103,10 @@ const FieldComponent: React.FC<FieldProps> = ({
     } catch (e) {
       content = <>{field.value}</>;
     }
+  } else if (field.type === "primitiveType") {
+    content = <span className="text-purple-300">{field.name}</span>;
   }
+
   return (
     <>
       {!field.labelHidden && (

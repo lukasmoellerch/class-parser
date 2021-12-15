@@ -1,3 +1,4 @@
+import { parseArrayType } from "./array-types";
 import { Constant } from "./class-decoder";
 import { Decoder } from "./decoder";
 
@@ -78,6 +79,11 @@ const createConstantReference = (index: number, labelHidden = true) => ({
   value: index,
   labelHidden,
 });
+const createPrimitiveType = (name: string, labelHidden = true) => ({
+  type: "primitiveType" as const,
+  name,
+  labelHidden,
+});
 
 export type InstructionDataField =
   | ReturnType<typeof createOffset>
@@ -86,7 +92,8 @@ export type InstructionDataField =
   | ReturnType<typeof createIntLiteral>
   | ReturnType<typeof createFieldReference>
   | ReturnType<typeof createMethodReference>
-  | ReturnType<typeof createConstantReference>;
+  | ReturnType<typeof createConstantReference>
+  | ReturnType<typeof createPrimitiveType>;
 
 export const instructions = [
   instruction(0x32, "aaload"),
@@ -422,7 +429,7 @@ export const instructions = [
   }),
   instruction(0xbc, "newarray", (decoder) => {
     const atype = decoder.getU1();
-    return { atype: createTypeIndex(atype) };
+    return { atype: createPrimitiveType(parseArrayType(atype)) };
   }),
   instruction(0x00, "nop"),
   instruction(0x57, "pop"),
