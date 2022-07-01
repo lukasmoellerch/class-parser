@@ -42,13 +42,28 @@ export const getNameTypeDesc = (constants: Constant[], index: number) => {
 
 export const getMethodReference = (constants: Constant[], index: number) => {
   const methodReference = getConstant(constants, index);
-  if (methodReference.type !== "methodReference") throw new Error();
+  if (
+    methodReference.type !== "methodReference" &&
+    methodReference.type !== "interfaceMethodReference"
+  )
+    throw new Error(
+      `Expected methodReference or interfaceMethodReference, but found ${methodReference.type}`
+    );
   const classRef = getClassReference(constants, methodReference.classIndex);
   const nameType = getNameTypeDesc(
     constants,
     methodReference.nameTypeDescIndex
   ) as ReturnType<typeof getNameTypeDesc> & { type: MethodType };
   return { classRef, nameType };
+};
+export const getCallSiteReference = (constants: Constant[], index: number) => {
+  const callSiteReference = getConstant(constants, index);
+  if (callSiteReference.type !== "invokeDynamic") throw new Error();
+  const nameType = getNameTypeDesc(
+    constants,
+    callSiteReference.nameTypeDesc
+  ) as ReturnType<typeof getNameTypeDesc> & { type: MethodType };
+  return { nameType };
 };
 export const getFieldReference = (constants: Constant[], index: number) => {
   const fieldReference = getConstant(constants, index);
@@ -131,6 +146,7 @@ export const parseClass = (data: ArrayBuffer) => {
         }
       }
     }
+    console.log(localVariableData);
     return {
       accessFlags,
       name,

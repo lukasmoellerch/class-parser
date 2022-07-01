@@ -14,14 +14,32 @@ interface ConstantMap {
   double: { value: number };
   classReference: { index: number };
   stringReference: { index: number };
-  fieldReference: { classIndex: number; nameTypeDescIndex: number };
-  methodReference: { classIndex: number; nameTypeDescIndex: number };
-  interfaceMethodReference: { classIndex: number; nameTypeDescIndex: number };
-  nameTypeDesc: { nameIndex: number; typeDescIndex: number };
-  methodHandle: { typeDesc: number; index: number };
+  fieldReference: {
+    classIndex: number;
+    nameTypeDescIndex: number;
+  };
+  methodReference: {
+    classIndex: number;
+    nameTypeDescIndex: number;
+  };
+  interfaceMethodReference: {
+    classIndex: number;
+    nameTypeDescIndex: number;
+  };
+  nameTypeDesc: {
+    nameIndex: number;
+    typeDescIndex: number;
+  };
+  methodHandle: {
+    typeDesc: number;
+    index: number;
+  };
   methodType: { index: number };
   dynamic: {};
-  invokeDynamic: {};
+  invokeDynamic: {
+    attributeIndex: number;
+    nameTypeDesc: number;
+  };
   module: {};
   package: {};
   unknown: {};
@@ -116,8 +134,9 @@ const decodeConstant = (parser: Decoder): Constant => {
     }
 
     case 18: {
-      parser.skip(4);
-      return { type: "invokeDynamic" };
+      const attributeIndex = parser.getU2();
+      const nameTypeDesc = parser.getU2();
+      return { type: "invokeDynamic", attributeIndex, nameTypeDesc };
     }
 
     case 19: {

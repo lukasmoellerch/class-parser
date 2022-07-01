@@ -35,10 +35,12 @@ const IndexPage: NextPage = () => {
     setFile(file);
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: ".class",
     onDrop,
   });
 
   const parsed = useMemo(() => (data ? parseClass(data) : undefined), [data]);
+
   return (
     <div className="bg-black">
       {file === undefined && (

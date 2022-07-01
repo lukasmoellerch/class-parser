@@ -2,6 +2,7 @@ import React from "react";
 import { MethodAccessFlags } from "../utils/access-flags-method";
 import { Constant } from "../utils/class-decoder";
 import { Method } from "../utils/class-parser";
+import InstructionComponent from "./Instruction";
 import InstructionDataComponent from "./InstructionData";
 import MethodTypeComponent from "./MethodType";
 
@@ -58,28 +59,12 @@ const MethodComponent: React.FC<Props> = ({ method, constants }) => {
       </div>
       <div className="mt-2">
         {method.instructions.map((instruction) => (
-          <div key={instruction.offset} className="flex items-start space-x-2">
-            <div className="text-teal-300 whitespace-pre">
-              {" "}
-              {instruction.offset.toString().padStart(4)}:
-            </div>
-            <div className="text-teal-100 text-opacity-40 hover:text-opacity-100 tracking-tighter">
-              {instruction.opcode.toString(16).padStart(2, "0")}
-            </div>
-            <div className="text-red-400 font-bold">
-              {instruction.mnemonic}{" "}
-            </div>
-            {instruction.data && (
-              <div>
-                <InstructionDataComponent
-                  constants={constants}
-                  data={instruction.data}
-                  method={method}
-                  instruction={instruction}
-                />
-              </div>
-            )}
-          </div>
+          <InstructionComponent
+            key={instruction.offset}
+            instruction={instruction}
+            constants={constants}
+            method={method}
+          />
         ))}
       </div>
     </div>

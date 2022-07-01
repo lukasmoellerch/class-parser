@@ -5,14 +5,17 @@
   "author": "lukasmoellerch",
   "license": "MIT",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.10",
     "next": "^10.1.3",
+    "node-fetch": "^3.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-dropzone": "^11.3.2"
+    "react-dropzone": "^11.3.2",
+    "react-query": "^3.34.4"
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/generate-instruction-data.mjs && next build",
     "start": "next start"
   },
   "devDependencies": {

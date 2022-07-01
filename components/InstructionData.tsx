@@ -1,6 +1,8 @@
 import React from "react";
+import { useQuery } from "react-query";
 import { Constant } from "../utils/class-decoder";
 import {
+  getCallSiteReference,
   getClassReference,
   getConstant,
   getFieldReference,
@@ -9,6 +11,7 @@ import {
   Method,
 } from "../utils/class-parser";
 import { Instruction, InstructionDataField } from "../utils/disassembler";
+import { InstructionData } from "../utils/instruction-data";
 import ClassPath from "./ClassPath";
 import FieldTypeComponent from "./FieldType";
 import Identifier from "./Identifier";
@@ -105,6 +108,21 @@ const FieldComponent: React.FC<FieldProps> = ({
     }
   } else if (field.type === "primitiveType") {
     content = <span className="text-purple-300">{field.name}</span>;
+  } else if (field.type === "callSiteReference") {
+    const t = getCallSiteReference(constants, field.value);
+
+    content = (
+      <>
+        <MethodTypeComponent
+          type={t.nameType.type}
+          name={
+            <>
+              <Identifier>{t.nameType.name}</Identifier>
+            </>
+          }
+        />{" "}
+      </>
+    );
   }
 
   return (
@@ -140,7 +158,7 @@ const InstructionDataComponent: React.FC<Props> = ({
     if (first) {
       first = false;
     } else {
-      elements.push(<span key={`,${i}`}>, </span>);
+      elements.push(<React.Fragment key={`,${i}`}>, </React.Fragment>);
     }
     elements.push(
       <FieldComponent
