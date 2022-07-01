@@ -3,7 +3,6 @@ import { MethodAccessFlags } from "../utils/access-flags-method";
 import { Constant } from "../utils/class-decoder";
 import { Method } from "../utils/class-parser";
 import InstructionComponent from "./Instruction";
-import InstructionDataComponent from "./InstructionData";
 import MethodTypeComponent from "./MethodType";
 
 interface Props {
